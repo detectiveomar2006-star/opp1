@@ -1,0 +1,183 @@
+
+#include <iostream>
+#include "Image_Class.h"
+using namespace std;
+
+string imageName;
+
+//first filter
+void greyscale(Image& image) {
+
+    for (int i = 0; i < image.width; ++i) {
+        for (int j = 0; j < image.height; ++j) {
+            unsigned  int avg = 0;
+            for (int k = 0; k < 3; ++k) {
+                avg += image(i, j, k);
+            }
+
+            avg /= 3;
+            for (int k = 0; k < 3; ++k) {
+                image(i,j,0) = avg;
+                image(i,j,1) = avg;
+                image(i,j,2) = avg;
+            }
+        }
+    }
+    cout << "Image converted to grayscale!" << endl;
+}
+
+//fifth filter
+void flip(Image& image){
+    char choice;
+    cout << "Choose flip type (h for horizontal, v for vertical): " << endl;
+    cin >> choice;
+
+    int width = image.width;
+    int height = image.height;
+    if (choice == 'h' || choice == 'H') {
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width / 2; ++x) {
+                for (int k = 0; k < 3; ++k){
+                    swap(image(x, y, k), image(width - 1 - x, y, k));
+                }
+            }
+        }
+        cout << "Image flipped horizontally!" << endl;
+    }
+    else if (choice == 'v' || choice == 'V') {
+        for (int y = 0; y < height / 2; ++y) {
+            for (int x = 0; x < width; ++x) {
+                for (int k = 0; k < 3; ++k) {
+                    swap(image(x, y, k), image(x, height - 1 - y, k));
+                }
+            }
+        }
+        cout << "Image flipped vertically!" << endl;
+    }
+    else {
+        cout << "Invalid choice, Use 'h' or 'v'" << endl;
+    }
+}
+ //second filter
+void baw(Image& image) {
+    for (int i = 0 ; i < image.width; i++) {
+        for (int j = 0 ; j < image.height; j++) {
+            int sum = 0;
+            for (int k = 0; k < 3; k++) {
+                sum += image(i, j, k);
+            }
+            int a = sum/3;
+            int v;
+            if (a > 127) {
+                v = 255;
+            }
+            else {
+                v = 0;
+            }
+            for (int k = 0; k < image.channels; k++) {
+                image(i, j, k) = v;
+            }
+        }
+    }
+}
+// sixth filter
+void rotate(Image& img) {
+    int degree;
+    cout << "enter the degree you want";
+    if (degree == 90) {
+        Image rotating(img.height,img.width);
+        for (int i = 0; i < rotating.width; i++) {
+            for (int j = 0; j < rotating.height; j++) {
+                for (int k = 0; k < rotating.channels; k++) {
+                    rotating(j, img.width - 1 - i,k) = img(i,j,k);
+                }
+            }
+        }
+        img = rotating;
+    }
+    else if (degree == 180) {
+        Image rotating(img.height,img.width);
+        for (int i = 0; i < rotating.width; i++) {
+            for (int j = 0; j < rotating.height; j++) {
+                for (int k = 0; k < rotating.channels; k++) {
+                   rotating(img.width - 1 - i , img.height - 1 - j,k) = img(i,j,k);
+                }
+            }
+        }
+        img = rotating;
+    }
+    else if (degree == 270) {
+        Image rotating(img.height,img.width);
+        for (int i = 0; i < img.width; i++) {
+            for (int j = 0; j < img.height; j++) {
+                for (int k = 0; k < img.channels; k++) {
+                    rotating(img.height - 1 - j, i,k) = img(i,j,k);
+                }
+            }
+        }
+        img = rotating;
+    }
+
+}
+
+int main() {
+    while (true) {
+        cout << "Welcome to image converter!" << endl;
+        cout << "type the file name you want to edit with its extension" << endl;
+        cin >> imageName;
+        Image image(imageName);
+
+        while (true) {
+            cout << "you can choose any filter from the below choices" << endl;
+            cout << "1 greyscale image" << endl;
+            cout << "2 flipping" << endl;
+            cout << "3 make photos black and white" << endl;
+            cout << "4 rotating photos" << endl;
+            int choice;
+            cin >> choice;
+
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Please enter a number!" << endl;continue;}
+
+            if (choice == 1) {greyscale(image);}
+            else if (choice == 2) {flip(image);}
+            else if (choice == 3) {baw(image);}
+            else if (choice == 4) {rotate(image);}
+            else {cout << "Invalid choice, please try again" << endl;continue;}
+
+            string answer;
+            while (true) {
+                cout << "do you want to save the file? (yes/no)" << endl;
+                cin >> answer;
+                if (answer == "yes") {
+                    cout << "enter a file name for your new image" << endl;
+                    string newImageName;
+                    cin >> newImageName;
+                    image.saveImage(newImageName);
+                    break;
+                }
+                if (answer == "no") {break;}
+            }
+            string answer2;
+            while (true) {
+                cout << "do you wish to continue editing this photo? (yes or no)" << endl;
+                cin >> answer2;
+                if (answer2 == "no") {break;}
+                if (answer2 == "yes") {break;}
+            }
+            if (answer2 == "no") {break;}
+        }
+
+        string answer3;
+        while (true) {
+            cout << "do you wish to exit? (yes/no)" << endl;
+            cin >> answer3;
+            if (answer3 == "yes") {break;}
+            if  (answer3 == "no") {break;}
+        }
+        if (answer3 == "yes") {break;}
+    }
+    return 0;
+}
